@@ -6,15 +6,20 @@
 # We make no guarantees that this code is fit for any purpose.
 # Visit http://www.pragmaticprogrammer.com/titles/sbsockets for more book information.
 #---
-defmodule Sneakers23Web.ProductController do
-  use Sneakers23Web, :controller
+defmodule Sneakers23Web.Admin.DashboardChannel do
+  use Phoenix.Channel
 
-  def index(conn, _params) do
-    {:ok, products} = Sneakers23.Inventory.get_complete_products()
+  def join("admin:cart_tracker", _payload, socket) do
+    send(self(), :after_join)
+    {:ok, socket}
+  end
 
-    conn
-    |> assign(:products, products)
-    |> put_resp_header("Cache-Control", "no-store, must-revalidate")
-    |> render("index.html")
+  def handle_info(:after_join, socket) do
+    push(socket, "presence_state", Sneakers23Web.CartTracker.all_carts())
+    {:noreply, socket}
+  end
+
+  def join("admin:cart_tracker", _payload, socket) do
+    {:ok, socket}
   end
 end

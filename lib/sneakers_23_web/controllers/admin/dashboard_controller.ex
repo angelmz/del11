@@ -6,7 +6,7 @@
 # We make no guarantees that this code is fit for any purpose.
 # Visit http://www.pragmaticprogrammer.com/titles/sbsockets for more book information.
 #---
-defmodule Sneakers23Web.ProductController do
+defmodule Sneakers23Web.Admin.DashboardController do
   use Sneakers23Web, :controller
 
   def index(conn, _params) do
@@ -14,7 +14,11 @@ defmodule Sneakers23Web.ProductController do
 
     conn
     |> assign(:products, products)
-    |> put_resp_header("Cache-Control", "no-store, must-revalidate")
+    |> assign(:admin_token, sign_admin_token(conn))
     |> render("index.html")
+  end
+
+  defp sign_admin_token(conn) do
+    Phoenix.Token.sign(conn, "admin socket", "admin")
   end
 end
